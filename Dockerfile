@@ -1,61 +1,80 @@
 # mTango Dockerfile
 
-FROM java:9-jre
+FROM ubuntu:xenial
 MAINTAINER mliszcz <liszcz.michal@gmail.com>
 
 RUN echo "deb [trusted=yes] http://mliszcz.github.io/tango-cs-build/repository/ apt/" >> /etc/apt/sources.list
 
 RUN apt-get update && apt-get install -y \
-  supervisor
+    openjdk-8-jre \
+    supervisor \
+    xmlstarlet \
+    zip
 
 RUN apt-get update && apt-get install -y \
-  libmysqlclient18 \
-  libomniorb4-1 \
-  libzmq5 \
-  libcos4-1
+    libmysqlclient20 \
+    libomniorb4-1 \
+    libzmq5 \
+    libcos4-1
 
 RUN apt-get update && apt-get install -y \
-  libtango9 \
-  libtango9-dev \
-  tango9-tools \
-  tango9-starter
+    libtango9 \
+    libtango9-dev \
+    tango9-tools \
+    tango9-starter
 
-RUN useradd -ms /bin/bash tango
+ENV LD_LIBRARY_PATH=/usr/local/lib \
+    JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 
-ENV LD_LIBRARY_PATH=/usr/local/lib
-
-ADD scripts/supervisord.conf /etc/supervisord.conf
+ADD scripts/supervisord.conf /etc/
 ADD scripts/tango_register_device /usr/local/bin/
 ADD scripts/wait-for-it.sh /usr/local/bin/
+ADD scripts/TangoRestServer /usr/local/bin/
 
-WORKDIR /home/tango
+RUN useradd -ms /bin/bash tomcat
 
-# ADD http://ftp.ps.pl/pub/apache/tomcat/tomcat-8/v8.5.0/bin/apache-tomcat-8.5.0.tar.gz /home/tango
-# COPY scripts/apache-tomcat-8.5.0.tar.gz /home/tango
-# COPY scripts/apache-tomcat-9.0.0.M4.tar.gz /home/tango
-# COPY scripts/wildfly-servlet-10.0.0.Final.tar.gz /home/tango
-COPY scripts/jetty-distribution-9.3.8.v20160314.tar.gz /home/tango
+WORKDIR /home/tomcat
 
-RUN chown -R tango:tango /home/tango/
+ADD http://ftp.ps.pl/pub/apache/tomcat/tomcat-8/v8.0.33/bin/apache-tomcat-8.0.33.tar.gz /home/tomcat/apache-tomcat.tar.gz
+ADD https://bitbucket.org/hzgwpn/mtango/downloads/mtango.server-rc2-0.3.zip /home/tomcat/mtango.zip
 
-# USER tango
+ADD scripts/tomcat-add-users.xsl /home/tomcat/
+ADD scripts/tomcat-enable-cors.xsl /home/tomcat/
 
-# RUN tar -xf apache-tomcat-8.5.0.tar.gz && rm -rf apache-tomcat-8.5.0.tar.gz
-# RUN tar -xf apache-tomcat-9.0.0.M4.tar.gz && rm -rf apache-tomcat-9.0.0.M4.tar.gz
-# RUN tar -xf wildfly-servlet-10.0.0.Final.tar.gz && rm -rf wildfly-servlet-10.0.0.Final.tar.gz
-RUN tar -xf jetty-distribution-9.3.8.v20160314.tar.gz && rm -rf jetty-distribution-9.3.8.v20160314.tar.gz
+RUN mkdir -p apache-tomcat && \
+    tar xf apache-tomcat.tar.gz -C apache-tomcat --strip-components=1 && \
+    rm -f apache-tomcat.tar.gz && \
+    xmlstarlet tr tomcat-add-users.xsl apache-tomcat/conf/tomcat-users.xml | xmlstarlet fo -s 2 > tomcat-users.xml && \
+    mv tomcat-users.xml apache-tomcat/conf/ && \
+    unzip mtango.zip && \
+    rm -f mtango.zip && \
+    mkdir -p WEB-INF && \
+    unzip mtango.war WEB-INF/web.xml && \
+    xmlstarlet tr tomcat-enable-cors.xsl WEB-INF/web.xml | xmlstarlet fo -s 2 > web.xml && \
+    mv web.xml WEB-INF/ && \
+    zip mtango.war WEB-INF/web.xml && \
+    rm -rf WEB-INF && \
+    rm -rf apache-tomcat/webapps/* && \
+    mv mtango.war apache-tomcat/webapps/ROOT.war && \
+    xmlstarlet ed -L -u "//Server/Service[@name='Catalina']/Connector[@protocol='HTTP/1.1']/@port" -v '${port.http}' apache-tomcat/conf/server.xml && \
+    xmlstarlet ed -L -u "//Server/@port" -v '${port.shutdown}' apache-tomcat/conf/server.xml && \
+    xmlstarlet ed -L -u "//Server/Service[@name='Catalina']/Connector[@protocol='AJP/1.3']/@port" -v '${port.ajp}' apache-tomcat/conf/server.xml
 
-COPY scripts/mtango.war /home/tango/jetty-distribution-9.3.8.v20160314/webapps
+RUN chown -R tomcat:tomcat /home/tomcat/
 
-RUN chown -R tango:tango /home/tango/
+USER tomcat
 
-USER tango
+ENV PORT_AJP=8009 \
+    PORT_HTTP=8080 \
+    PORT_SHUTDOWN=8005 \
+    REST_USER=tango \
+    REST_PASSWORD=tango \
+    GROOVY_USER=groovy \
+    GROOVY_PASSWORD=groovy \
+    ADMIN_USER=admin \
+    ADMIN_PASSWORD=admin
 
 EXPOSE 8080
 
-CMD ["/bin/bash"]
-
-
-# /usr/local/bin/tango_register_device TangoRestServer/development TangoRestServer test/rest/0
-
-# add startup script
+CMD /usr/local/bin/wait-for-it.sh $TANGO_HOST --timeout=30 --strict -- \
+    /usr/bin/supervisord -c /etc/supervisord.conf

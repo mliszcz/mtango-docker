@@ -1,0 +1,17 @@
+#!/bin/bash
+
+CATALINA_HOME=/home/tomcat/apache-tomcat
+
+CATALINA_OPTS="-Dport.http=$PORT_HTTP "
+CATALINA_OPTS+="-Dport.shutdown=$PORT_SHUTDOWN "
+CATALINA_OPTS+="-Dport.ajp=$PORT_AJP "
+CATALINA_OPTS+="-Drest.user=$REST_USER "
+CATALINA_OPTS+="-Drest.password=$REST_PASSWORD "
+CATALINA_OPTS+="-Dgroovy.user=$GROOVY_USER "
+CATALINA_OPTS+="-Dgroovy.password=$GROOVY_PASSWORD "
+CATALINA_OPTS+="-Dadmin.user=$ADMIN_USER "
+CATALINA_OPTS+="-Dadmin.password=$ADMIN_PASSWORD "
+
+export CATALINA_OPTS
+
+$CATALINA_HOME/bin/catalina.sh run
