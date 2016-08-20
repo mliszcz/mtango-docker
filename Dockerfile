@@ -48,12 +48,6 @@ RUN mkdir -p apache-tomcat && \
     mv tomcat-users.xml apache-tomcat/conf/ && \
     unzip mtango.zip && \
     rm -f mtango.zip && \
-    mkdir -p WEB-INF && \
-    unzip tango.war WEB-INF/web.xml && \
-    xmlstarlet tr tomcat-enable-cors.xsl WEB-INF/web.xml | xmlstarlet fo -s 2 > web.xml && \
-    mv web.xml WEB-INF/ && \
-    zip tango.war WEB-INF/web.xml && \
-    rm -rf WEB-INF && \
     rm -rf apache-tomcat/webapps/* && \
     mv tango.war apache-tomcat/webapps/ROOT.war && \
     xmlstarlet ed -L -u "//Server/Service[@name='Catalina']/Connector[@protocol='HTTP/1.1']/@port" -v '${port.http}' apache-tomcat/conf/server.xml && \
