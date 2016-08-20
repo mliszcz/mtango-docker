@@ -15,6 +15,14 @@
     <!-- Delete -->
   </xsl:template>
 
+  <xsl:template match="jee:filter[jee:filter-class = 'org.tango.web.server.filters.CORSFilter']">
+    <!-- Delete -->
+  </xsl:template>
+
+  <xsl:template match="jee:filter-mapping[jee:filter-name = 'CORSFilter']">
+    <!-- Delete -->
+  </xsl:template>
+
   <xsl:template match="jee:web-app">
     <xsl:copy>
 

@@ -35,8 +35,8 @@ RUN useradd -ms /bin/bash tomcat
 
 WORKDIR /home/tomcat
 
-ADD http://ftp.ps.pl/pub/apache/tomcat/tomcat-8/v8.0.33/bin/apache-tomcat-8.0.33.tar.gz /home/tomcat/apache-tomcat.tar.gz
-ADD https://bitbucket.org/hzgwpn/mtango/downloads/mtango.server-rc2-0.3.zip /home/tomcat/mtango.zip
+ADD http://ftp.ps.pl/pub/apache/tomcat/tomcat-8/v8.0.36/bin/apache-tomcat-8.0.36.tar.gz /home/tomcat/apache-tomcat.tar.gz
+ADD https://bitbucket.org/hzgwpn/mtango/downloads/mtango.server-rc3-0.1.zip /home/tomcat/mtango.zip
 
 ADD scripts/tomcat-add-users.xsl /home/tomcat/
 ADD scripts/tomcat-enable-cors.xsl /home/tomcat/
@@ -49,13 +49,13 @@ RUN mkdir -p apache-tomcat && \
     unzip mtango.zip && \
     rm -f mtango.zip && \
     mkdir -p WEB-INF && \
-    unzip mtango.war WEB-INF/web.xml && \
+    unzip tango.war WEB-INF/web.xml && \
     xmlstarlet tr tomcat-enable-cors.xsl WEB-INF/web.xml | xmlstarlet fo -s 2 > web.xml && \
     mv web.xml WEB-INF/ && \
-    zip mtango.war WEB-INF/web.xml && \
+    zip tango.war WEB-INF/web.xml && \
     rm -rf WEB-INF && \
     rm -rf apache-tomcat/webapps/* && \
-    mv mtango.war apache-tomcat/webapps/ROOT.war && \
+    mv tango.war apache-tomcat/webapps/ROOT.war && \
     xmlstarlet ed -L -u "//Server/Service[@name='Catalina']/Connector[@protocol='HTTP/1.1']/@port" -v '${port.http}' apache-tomcat/conf/server.xml && \
     xmlstarlet ed -L -u "//Server/@port" -v '${port.shutdown}' apache-tomcat/conf/server.xml && \
     xmlstarlet ed -L -u "//Server/Service[@name='Catalina']/Connector[@protocol='AJP/1.3']/@port" -v '${port.ajp}' apache-tomcat/conf/server.xml
