@@ -35,7 +35,7 @@ RUN useradd -ms /bin/bash tomcat
 
 WORKDIR /home/tomcat
 
-ADD http://ftp.ps.pl/pub/apache/tomcat/tomcat-8/v8.0.36/bin/apache-tomcat-8.0.36.tar.gz /home/tomcat/apache-tomcat.tar.gz
+ADD https://archive.apache.org/dist/tomcat/tomcat-8/v8.0.36/bin/apache-tomcat-8.0.36.tar.gz /home/tomcat/apache-tomcat.tar.gz
 ADD https://bitbucket.org/hzgwpn/mtango/downloads/mtango.server-rc3-0.1.zip /home/tomcat/mtango.zip
 
 ADD scripts/tomcat-add-users.xsl /home/tomcat/

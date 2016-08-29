@@ -4,18 +4,18 @@ Dockerfile for [mTango](https://bitbucket.org/hzgwpn/mtango/overview) server.
 
 ## What's included
 
-The image is based on Ubuntu 16.04. Following software is installed:
+The image is based on Ubuntu 16.04. Following packages are installed:
 
 * OpenJDK 8
-* Apache Tomcat 8.0.33
+* Apache Tomcat 8.0.x
 * Tango 9.2.2
-* mTango rc2-0.3
+* mTango rc3-0.x
 
 ## Configuration
 
 mTango is deployed at the ROOT context path (`/`).
 
-The database will be configured automatically:
+The database will be configured automatically for these settings:
 
 * class: `TangoRestServer`
 * instance: `development`
