@@ -1,6 +1,4 @@
-#!/bin/bash
-
-CATALINA_HOME=/home/tomcat/apache-tomcat
+#!/usr/bin/env bash
 
 CATALINA_OPTS="-Dport.http=$PORT_HTTP "
 CATALINA_OPTS+="-Dport.shutdown=$PORT_SHUTDOWN "

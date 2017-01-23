@@ -1,19 +1,24 @@
-# mtango-docker
+# Supported tags and respective `Dockerfile` links
 
-Dockerfile for [mTango](https://bitbucket.org/hzgwpn/mtango/overview) server.
+* [`rc3-0.1`, `latest` (*Dockerfile*)](https://github.com/mliszcz/mtango-docker/blob/master/Dockerfile)
 
-## What's included
+# mTango
 
-The image is based on Ubuntu 16.04. Following packages are installed:
+> mTangoSDK (mobile Tango Software Development Kit)'s main goal is to give
+> developers tools for rapid development of web/mobile tango applications.
 
-* OpenJDK 8
-* Apache Tomcat 8.0.x
-* Tango 9.2.2
-* mTango rc3-0.x
+For more information please visit [bitbucket.org/hzgwpn/mtango/overview](https://bitbucket.org/hzgwpn/mtango/overview).
 
-## Configuration
+# How to use this image
 
-mTango is deployed at the ROOT context path (`/`).
+A running instance of Tango is required to use this image. Pass the mandatory
+`TANGO_HOST` variable during container creation:
+
+```console
+docker run -it --rm --name tango_mtango \
+  -e TANGO_HOST=172.18.0.3:10000 \
+  mliszcz/mtango:latest
+```
 
 The database will be configured automatically for these settings:
 
@@ -21,20 +26,27 @@ The database will be configured automatically for these settings:
 * instance: `development`
 * device: `test/rest/0`
 
+mTango is deployed at the ROOT context path (`/`). By default the server
+listens on port 8080. Visit following url in your browser
+<http://172.18.0.5:8080/rest/rc3>. You should see:
+
+```json
+{"hosts":"http://172.18.0.5:8080/rest/rc3/hosts","x-auth-method":"basic"}
+```
+
 You may pass following variables to the container:
 
-* `TANGO_HOST` (**mandatory**)
-* `PORT_AJP`(optional, default *8009*)
-* `PORT_HTTP` (optional, default *8080*)
-* `PORT_SHUTDOWN` (optional, default *8005*)
-* `REST_USER` (optional, default *tango*)
-* `REST_PASSWORD` (optional, default *tango*)
-* `GROOVY_USER` (optional, default *groovy*)
-* `GROOVY_PASSWORD` (optional, default *groovy*)
-* `ADMIN_USER` (optional, default *admin*)
-* `ADMIN_PASSWORD` (optional, default *admin*)
+* `PORT_AJP` (default *8009*)
+* `PORT_HTTP` (default *8080*)
+* `PORT_SHUTDOWN` (default *8005*)
+* `REST_USER` (default *tango*)
+* `REST_PASSWORD` (default *tango*)
+* `GROOVY_USER` (default *groovy*)
+* `GROOVY_PASSWORD` (default *groovy*)
+* `ADMIN_USER` (default *admin*)
+* `ADMIN_PASSWORD` (default *admin*)
 
-## Acknowledgements
+# Acknowledgements
 
 * Thanks [vishnubob](https://github.com/vishnubob) for the `wait-for-it.sh`
   script;
