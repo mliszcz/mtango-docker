@@ -28,7 +28,7 @@ The database will be configured automatically for these settings:
 
 mTango is deployed at the ROOT context path (`/`). By default the server
 listens on port 8080. Visit following url in your browser
-<http://172.18.0.5:8080/rest/rc3>. You should see:
+<http://{container-ip}:8080/rest/rc3>. You should see:
 
 ```json
 {"hosts":"http://172.18.0.5:8080/rest/rc3/hosts","x-auth-method":"basic"}
