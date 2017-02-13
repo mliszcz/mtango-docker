@@ -16,6 +16,7 @@ ADD https://bitbucket.org/hzgwpn/mtango/downloads/mtango.server-rc3-0.1.zip /roo
 RUN yum -y install epel-release && \
     yum -y install \
         supervisor \
+        zip \
         unzip \
         xmlstarlet \
         tango-starter \
@@ -27,6 +28,14 @@ RUN cd /root \
     && mkdir -p $CATALINA_HOME \
     && tar xf tomcat.tar.gz -C $CATALINA_HOME --strip-components=1 \
     && unzip mtango.zip \
+    \
+    && mkdir -p WEB-INF \
+    && unzip tango.war WEB-INF/web.xml \
+    && xmlstarlet tr tomcat-enable-cors.xsl WEB-INF/web.xml | xmlstarlet fo -s 2 > web.xml \
+    && mv web.xml WEB-INF/ \
+    && zip tango.war WEB-INF/web.xml \
+    && rm -rf WEB-INF \
+    \
     && rm -rf $CATALINA_HOME/webapps/* \
     && mv tango.war $CATALINA_HOME/webapps/ROOT.war \
     && rm -f tomcat.tar.gz \
